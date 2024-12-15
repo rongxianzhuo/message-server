@@ -56,14 +56,13 @@ def pull():
         return jsonify({"error": "No header provided"}), 400
 
     if header not in messages:
-        return jsonify({"status": "success"}), 200
+        return jsonify({"status": "success", "messages": []}), 200
 
     body_list = messages[header]
 
     if body_list:
-        body = body_list[0]
-        del body_list[0]
-        return jsonify({"status": "success", "body": body})
+        messages[header] = []
+        return jsonify({"status": "success", "messages": body_list})
     else:
         return jsonify({"error": "No message"})
 
