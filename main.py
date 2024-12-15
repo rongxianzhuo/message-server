@@ -139,7 +139,7 @@ def chat_completions():
 
     # Generate a dummy response
     response = {
-        "id": "0",
+        "id": str(len(message_history)),
         "object": "chat.completion",
         "created": int(time.time()),
         "model": "gpt-dummy",
@@ -154,9 +154,9 @@ def chat_completions():
             }
         ],
         "usage": {
-            "prompt_tokens": 0,
-            "completion_tokens": 0,
-            "total_tokens": 0
+            "prompt_tokens": 2,
+            "completion_tokens": 2,
+            "total_tokens": 2
         }
     }
     print(response)
