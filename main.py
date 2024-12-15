@@ -1,3 +1,5 @@
+import sys
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import time
@@ -160,4 +162,7 @@ def chat_completions():
 
 
 if __name__ == '__main__':
+    import logging
+    app.logger.setLevel(logging.DEBUG)
+    app.logger.addHandler(logging.StreamHandler())
     app.run('0.0.0.0', 5000, debug=True)
