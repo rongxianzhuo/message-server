@@ -14,8 +14,8 @@ messages = {}
 chat_messages = {}
 
 
-@app.route('/config', methods=['POST'])
-def config():
+@app.route('/add_api_key', methods=['POST'])
+def add_api_key():
     data = request.get_json()
 
     if not data:
