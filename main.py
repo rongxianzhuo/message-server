@@ -1,7 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import time
-import os
+
+
+api_keys = set()
+
 
 app = Flask(__name__)
 CORS(app)
@@ -9,6 +12,34 @@ CORS(app)
 
 messages = {}
 chat_messages = {}
+
+
+@app.route('/config', methods=['POST'])
+def config():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    if 'header' not in data:
+        return jsonify({"error": "No header provided"}), 400
+
+    header = data['header']
+
+    if not header:
+        return jsonify({"error": "No header provided"}), 400
+
+    if 'body' not in data:
+        return jsonify({"error": "No body provided"}), 400
+
+    body = data['body']
+
+    if not body:
+        return jsonify({"error": "No body provided"}), 400
+
+    api_keys.add(body)
+
+    return jsonify({"status": "success"})
 
 
 @app.route('/push', methods=['POST'])
@@ -76,7 +107,7 @@ def chat_completions():
         return jsonify({"error": "Unauthorized"}), 401
 
     api_key = auth_header.split(' ')[1]
-    if api_key not in os.environ.get('api_keys'):
+    if api_key not in api_keys:
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.json
