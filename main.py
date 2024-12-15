@@ -104,7 +104,7 @@ def pull():
 
 @app.route('/v1/chat/completions', methods=['POST'])
 def chat_completions():
-    print("call chat_completions")
+    app.logger.debug("call chat_completions")
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({"error": "Unauthorized"}), 401
@@ -115,13 +115,12 @@ def chat_completions():
 
     data = request.json
     message_history = data['messages']
-    print(message_history)
     app.logger.debug(str(message_history))
     start_index = 0
     if api_key in chat_messages:
         start_index = len(chat_messages[api_key])
     if start_index >= len(message_history):
-        print("message not change")
+        app.logger.debug("message not change")
         return
     chat_messages[api_key] = message_history
     message_header = f"chat-request:{api_key}"
@@ -139,10 +138,10 @@ def chat_completions():
 
     # Generate a dummy response
     response = {
-        "id": str(len(message_history)),
+        "id": 'chatcmpl-415777db-51cf-92ba-98ec-677b4d6d6bc3',
         "object": "chat.completion",
         "created": int(time.time()),
-        "model": "gpt-dummy",
+        "model": "gpt-3.5-turbo",
         "choices": [
             {
                 "message": {
@@ -154,12 +153,11 @@ def chat_completions():
             }
         ],
         "usage": {
-            "prompt_tokens": 2,
-            "completion_tokens": 2,
-            "total_tokens": 2
+            "prompt_tokens": 20,
+            "completion_tokens": 28,
+            "total_tokens": 48
         }
     }
-    print(response)
     app.logger.info(response)
     return jsonify(response)
 
