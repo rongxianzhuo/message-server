@@ -116,6 +116,7 @@ def chat_completions():
     data = request.json
     message_history = data['messages']
     print(message_history)
+    app.logger.debug(str(message_history))
     start_index = 0
     if api_key in chat_messages:
         start_index = len(chat_messages[api_key])
@@ -158,6 +159,8 @@ def chat_completions():
             "total_tokens": 0
         }
     }
+    print(response)
+    app.logger.info(response)
     return jsonify(response)
 
 
