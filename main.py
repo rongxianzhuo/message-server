@@ -102,6 +102,7 @@ def pull():
 
 @app.route('/v1/chat/completions', methods=['POST'])
 def chat_completions():
+    print("call chat_completions")
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({"error": "Unauthorized"}), 401
@@ -112,10 +113,12 @@ def chat_completions():
 
     data = request.json
     message_history = data['messages']
+    print(message_history)
     start_index = 0
     if api_key in chat_messages:
         start_index = len(chat_messages[api_key])
     if start_index >= len(message_history):
+        print("message not change")
         return
     chat_messages[api_key] = message_history
     message_header = f"chat-request:{api_key}"
@@ -157,4 +160,4 @@ def chat_completions():
 
 
 if __name__ == '__main__':
-    app.run('0.0.0.0', 5000)
+    app.run('0.0.0.0', 5000, debug=True)
