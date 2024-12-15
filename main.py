@@ -124,11 +124,12 @@ def chat_completions():
     for i in message_history[start_index:]:
         messages[message_header].append(i)
 
-    response_header = f"chat-response:{api_key}"
-    while response_header not in messages or not messages[response_header]:
-        time.sleep(1)
-    response_message = ''.join(messages[response_header])
-    messages[response_header] = []
+    # response_header = f"chat-response:{api_key}"
+    # while response_header not in messages or not messages[response_header]:
+    #     time.sleep(1)
+    # response_message = ''.join(messages[response_header])
+    # messages[response_header] = []
+    response_message = "test response"
 
     # Generate a dummy response
     response = {
