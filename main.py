@@ -128,6 +128,7 @@ def chat_completions():
     while response_header not in messages or not messages[response_header]:
         time.sleep(1)
     response_message = ''.join(messages[response_header])
+    messages[response_header] = []
 
     # Generate a dummy response
     response = {
