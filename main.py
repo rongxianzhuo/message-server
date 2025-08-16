@@ -12,86 +12,47 @@ messages = {}
 permanent_message = {}
 
 
+def check_authorization(json_request, *params):
+    if authorization and request.headers.get("Authorization") != authorization:
+        return False
+    if not json_request:
+        return False
+    for i in params:
+        if i not in json_request or not json_request[i]:
+            return False
+    return True
+
+
 @app.route('/push_permanent', methods=['POST'])
 def push_permanent():
-    if authorization and request.headers.get("Authorization") != authorization:
-        return "", 400
     data = request.get_json()
-
-    if not data:
-        return jsonify({"error": "No data provided"}), 400
-
-    if 'header' not in data:
-        return jsonify({"error": "No header provided"}), 400
-
+    if not check_authorization(data, 'header', 'body'):
+        return '', 400
     header = data['header']
-
-    if not header:
-        return jsonify({"error": "No header provided"}), 400
-
-    if 'body' not in data:
-        return jsonify({"error": "No body provided"}), 400
-
-    body = data['body']
-
-    if not body:
-        return jsonify({"error": "No body provided"}), 400
-
-    permanent_message[header] = body
-
+    permanent_message[header] = data['body']
     return jsonify({"status": "success"})
 
 
 @app.route('/push', methods=['POST'])
 def push():
-    if authorization and request.headers.get("Authorization") != authorization:
-        return "", 400
     data = request.get_json()
-
-    if not data:
-        return jsonify({"error": "No data provided"}), 400
-
-    if 'header' not in data:
-        return jsonify({"error": "No header provided"}), 400
-
+    if not check_authorization(data, 'header', 'body'):
+        return '', 400
     header = data['header']
-
-    if not header:
-        return jsonify({"error": "No header provided"}), 400
-
-    if 'body' not in data:
-        return jsonify({"error": "No body provided"}), 400
-
     body = data['body']
-
-    if not body:
-        return jsonify({"error": "No body provided"}), 400
-
-    if header in messages and messages[header]:
+    if header in messages:
         messages[header].append(body)
     else:
         messages[header] = [body, ]
-
     return jsonify({"status": "success"})
 
 
 @app.route('/pull', methods=['POST'])
 def pull():
-    if authorization and request.headers.get("Authorization") != authorization:
-        return "", 400
     data = request.get_json()
-
-    if not data:
-        return jsonify({"error": "No data provided"}), 400
-
-    if 'header' not in data:
-        return jsonify({"error": "No header provided"}), 400
-
+    if not check_authorization(data, 'header'):
+        return '', 400
     header = data['header']
-
-    if not header:
-        return jsonify({"error": "No header provided"}), 400
-
     response = {}
     if header in messages and messages[header]:
         response["messages"] = messages[header]
