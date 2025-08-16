@@ -84,22 +84,14 @@ def pull():
     if not header:
         return jsonify({"error": "No header provided"}), 400
 
-    if header not in messages:
-        return jsonify({}), 200
-
-    body_list = messages[header]
-
-    if body_list:
+    response = {}
+    if header in messages and messages[header]:
+        response["messages"] = messages[header]
         messages[header] = []
-        if header in permanent_message:
-            return jsonify({"permanent": permanent_message[header], "messages": body_list})
-        else:
-            return jsonify({"messages": body_list})
-    else:
-        if header in permanent_message:
-            return jsonify({"permanent": permanent_message[header]})
-        else:
-            return jsonify({})
+
+    if header in permanent_message:
+        response["permanent"] = permanent_message[header]
+    return jsonify(response)
 
 
 if __name__ == '__main__':
