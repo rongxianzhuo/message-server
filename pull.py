@@ -12,7 +12,7 @@ data = {
 
 json_data = json.dumps(data)
 
-response = requests.post(url, headers={'Content-Type': 'application/json'}, data=json_data)
+response = requests.post(url, headers={'Content-Type': 'application/json', "Authorization": '123456'}, data=json_data)
 
 
 if response.status_code == 200:

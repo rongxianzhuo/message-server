@@ -1,3 +1,4 @@
+import sys
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -6,12 +7,15 @@ app = Flask(__name__)
 CORS(app)
 
 
+authorization = ''
 messages = {}
 permanent_message = {}
 
 
 @app.route('/push_permanent', methods=['POST'])
 def push_permanent():
+    if authorization and request.headers.get("Authorization") != authorization:
+        return "", 400
     data = request.get_json()
 
     if not data:
@@ -40,6 +44,8 @@ def push_permanent():
 
 @app.route('/push', methods=['POST'])
 def push():
+    if authorization and request.headers.get("Authorization") != authorization:
+        return "", 400
     data = request.get_json()
 
     if not data:
@@ -71,6 +77,8 @@ def push():
 
 @app.route('/pull', methods=['POST'])
 def pull():
+    if authorization and request.headers.get("Authorization") != authorization:
+        return "", 400
     data = request.get_json()
 
     if not data:
@@ -95,4 +103,6 @@ def pull():
 
 
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1]:
+        authorization = sys.argv[1]
     app.run('0.0.0.0', 5000)
