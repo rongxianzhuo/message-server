@@ -1,11 +1,5 @@
-import sys
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import time
-
-
-api_keys = set()
 
 
 app = Flask(__name__)
@@ -13,11 +7,11 @@ CORS(app)
 
 
 messages = {}
-chat_messages = {}
+permanent_message = {}
 
 
-@app.route('/add_api_key', methods=['POST'])
-def add_api_key():
+@app.route('/push_permanent', methods=['POST'])
+def push_permanent():
     data = request.get_json()
 
     if not data:
@@ -39,7 +33,7 @@ def add_api_key():
     if not body:
         return jsonify({"error": "No body provided"}), 400
 
-    api_keys.add(body)
+    permanent_message[header] = body
 
     return jsonify({"status": "success"})
 
@@ -91,79 +85,22 @@ def pull():
         return jsonify({"error": "No header provided"}), 400
 
     if header not in messages:
-        return jsonify({"status": "success", "messages": []}), 200
+        return jsonify({}), 200
 
     body_list = messages[header]
 
     if body_list:
         messages[header] = []
-        return jsonify({"status": "success", "messages": body_list})
+        if header in permanent_message:
+            return jsonify({"permanent": permanent_message[header], "messages": body_list})
+        else:
+            return jsonify({"messages": body_list})
     else:
-        return jsonify({"error": "No message"})
-
-
-@app.route('/v1/chat/completions', methods=['POST'])
-def chat_completions():
-    app.logger.debug("call chat_completions")
-    auth_header = request.headers.get('Authorization')
-    if not auth_header or not auth_header.startswith('Bearer '):
-        return jsonify({"error": "Unauthorized"}), 401
-
-    api_key = auth_header.split(' ')[1]
-    if api_key not in api_keys:
-        return jsonify({"error": "Unauthorized"}), 401
-
-    data = request.json
-    message_history = data['messages']
-    app.logger.debug(str(message_history))
-    start_index = 0
-    if api_key in chat_messages:
-        start_index = len(chat_messages[api_key])
-    if start_index >= len(message_history):
-        app.logger.debug("message not change")
-        return
-    chat_messages[api_key] = message_history
-    message_header = f"chat-request:{api_key}"
-    if message_header not in messages:
-        messages[message_header] = []
-    for i in message_history[start_index:]:
-        messages[message_header].append(i)
-
-    # response_header = f"chat-response:{api_key}"
-    # while response_header not in messages or not messages[response_header]:
-    #     time.sleep(1)
-    # response_message = ''.join(messages[response_header])
-    # messages[response_header] = []
-    response_message = "test response"
-
-    # Generate a dummy response
-    response = {
-        "id": 'chatcmpl-415777db-51cf-92ba-98ec-677b4d6d6bc3',
-        "object": "chat.completion",
-        "created": int(time.time()),
-        "model": "gpt-3.5-turbo",
-        "choices": [
-            {
-                "message": {
-                    "role": "assistant",
-                    "content": response_message
-                },
-                "finish_reason": "stop",
-                "index": 0
-            }
-        ],
-        "usage": {
-            "prompt_tokens": 20,
-            "completion_tokens": 28,
-            "total_tokens": 48
-        }
-    }
-    app.logger.info(response)
-    return jsonify(response)
+        if header in permanent_message:
+            return jsonify({"permanent": permanent_message[header]})
+        else:
+            return jsonify({})
 
 
 if __name__ == '__main__':
-    import logging
-    app.logger.setLevel(logging.DEBUG)
-    app.logger.addHandler(logging.StreamHandler())
-    app.run('0.0.0.0', 5000, debug=True)
+    app.run('0.0.0.0', 5000)
